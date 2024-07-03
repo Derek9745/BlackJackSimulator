@@ -17,8 +17,8 @@ public class BlackJackSimulator
     public Player currentPlayer = null;
     public List<Card> cardList = new List<Card>();
 
-    public enum Suit {Heart,Diamond,Spade,Club};
-    public enum Rank {Ace = 11,Two = 2,Three = 3,Four = 4,Five = 5,Six = 6,Seven = 7,Eight = 8,Nine = 9,Ten = 10,Jack = 10,Queen = 10,King = 10};
+    public enum Suit { Heart, Diamond, Spade, Club };
+    public enum Rank { Ace = 11, Two = 2, Three = 3, Four = 4, Five = 5, Six = 6, Seven = 7, Eight = 8, Nine = 9, Ten = 10, Jack = 10, Queen = 10, King = 10 };
 
     public class Deck
     {
@@ -57,7 +57,7 @@ public class BlackJackSimulator
         {
             Suit = suit;
             Rank = rank;
-            this.isVisible = isVisible; 
+            this.isVisible = isVisible;
         }
     }
 
@@ -71,7 +71,7 @@ public class BlackJackSimulator
         {
             this.hand = hand;
             this.playerName = playerName;
-            this.currentCardValue = currentCardValue;   
+            this.currentCardValue = currentCardValue;
         }
     }
 
@@ -83,7 +83,8 @@ public class BlackJackSimulator
     {
         Console.WriteLine("Beginning new game...");
         Console.WriteLine("How many players will join?");
-        numberOfPlayers(Convert.ToInt32(Console.ReadLine()), currentPlayerList);
+        int p = input();
+        numberOfPlayers(p, currentPlayerList);
         Console.WriteLine("Number of players:" + Convert.ToString(countPlayers(currentPlayerList)));
         currentPlayer = currentPlayerList[0];
         generateCards(cardList);
@@ -115,6 +116,10 @@ public class BlackJackSimulator
                 case 3:
                     surrender();
                     break;
+                default:
+                    Console.WriteLine("Invalid command. Please enter 1, 2, or 3.");
+                    break;
+
             }
         }
     }
@@ -131,7 +136,7 @@ public class BlackJackSimulator
         }
     }
 
-    public void dealHands(List<Player>currentPlayerList, Deck currentDeck)
+    public void dealHands(List<Player> currentPlayerList, Deck currentDeck)
     {
         foreach (var player in currentPlayerList)
         {
@@ -162,13 +167,15 @@ public class BlackJackSimulator
             calculatePlayerCardValue(currentPlayer);
             Console.WriteLine("Current deck size: " + Convert.ToString(currentDeck.deck.Count));
             Console.WriteLine("Congratulations! You Win!");
-            Environment.Exit(0);
+            stillPlaying = false;
+           
         }
         else if (currentPlayer.currentCardValue > 21)
         {
             Console.WriteLine("You exceeded 21!");
             showPlayerCardValues(currentPlayerList);
-            Environment.Exit(0);
+            stillPlaying = false;
+            
         }
     }
 
@@ -198,7 +205,7 @@ public class BlackJackSimulator
         //if the hand value is over 21, check again for any aces, and reduce the players hand value by 10 for each one until the player is at or below 21
         if (currentPlayer.currentCardValue > 21)
         {
-            foreach(var card in currentPlayer.hand)
+            foreach (var card in currentPlayer.hand)
             {
                 if (card.Rank == Rank.Ace)
                 {
@@ -206,19 +213,19 @@ public class BlackJackSimulator
                     if (currentPlayer.currentCardValue <= 21)
                     {
                         break;
-                    }  
+                    }
                 }
             }
         }
         return currentPlayer.currentCardValue;
     }
 
-    public void showPlayerCardValues(List<Player>currentPlayerList)
+    public void showPlayerCardValues(List<Player> currentPlayerList)
     {
         foreach (var player in currentPlayerList)
         {
             player.currentCardValue = 0;
-            foreach(var card in player.hand)
+            foreach (var card in player.hand)
             {
                 // currently the value of all cards will be shown, even if not visible for testing purposes.
                 player.currentCardValue += Convert.ToInt32(card.Rank);
@@ -257,26 +264,38 @@ public class BlackJackSimulator
     public int countPlayers(List<Player> currentPlayerList)
     {
         int count = 0;
-        foreach(var player in currentPlayerList)
+        foreach (var player in currentPlayerList)
         {
-            count += 1;   
+            count += 1;
         }
         return count;
     }
 
     public void dealerTurn(Player dealer, Deck currentDeck)
     {
-            if (dealer.currentCardValue <= 16)
+        if (dealer.currentCardValue <= 16)
+        {
+            while (dealer.currentCardValue <= 16)
             {
-                while (dealer.currentCardValue <= 16)
-                {
-                    hit(dealer, currentDeck);
-                }
+                hit(dealer, currentDeck);
             }
-            else if (dealer.currentCardValue > 16)
-            {
-                stay();
-                return;
-            }  
-    } 
+        }
+        else if (dealer.currentCardValue > 16)
+        {
+            stay();
+            return;
+        }
+    }
+    public int input()
+    {
+        try
+        {
+            return Convert.ToInt32(Console.ReadLine());
+        }
+        catch (Exception)
+        {
+            Console.WriteLine("Answer must be a numerical input. Please Try Again");
+            return input();
+        }
+    }
 }
